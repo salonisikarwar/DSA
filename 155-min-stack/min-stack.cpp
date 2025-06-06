@@ -1,38 +1,49 @@
+#include <stack>
+using namespace std;
+
 class MinStack {
 private:
-    stack<pair<int, int>> st;  
+    stack<long long> st;
+    long long mini;
 
 public:
     MinStack() {}
 
     void push(int val) {
+        long long v = val;
         if (st.empty()) {
-            st.push({val, val});
+            mini = v;
+            st.push(v);
         } else {
-            int currentMin = min(val, st.top().second);
-            st.push({val, currentMin});
+            if (v >= mini) {
+                st.push(v);
+            } else {
+                st.push(2 * v - mini);  // encode
+                mini = v;
+            }
         }
     }
 
     void pop() {
-        if (!st.empty())
-            st.pop();
+        if (st.empty()) return;
+
+        long long top = st.top();
+        st.pop();
+
+        if (top < mini) {
+            mini = 2 * mini - top;  // decode
+        }
     }
 
     int top() {
-        return st.top().first;
+        if (st.empty()) return -1;
+
+        long long top = st.top();
+        if (top < mini) return mini;
+        return top;
     }
 
     int getMin() {
-        return st.top().second;
+        return mini;
     }
 };
-
-/**
- * Your MinStack object will be instantiated and called as such:
- * MinStack* obj = new MinStack();
- * obj->push(val);
- * obj->pop();
- * int param_3 = obj->top();
- * int param_4 = obj->getMin();
- */
