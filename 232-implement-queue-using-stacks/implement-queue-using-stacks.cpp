@@ -11,35 +11,42 @@ public:
     }
 
     void push(int x) {
-        // Move all elements from s1 to s2
-        while (!s1.empty()) {
-            s2.push(s1.top());
-            s1.pop();
-        }
-
-        // Push new element into empty s1
         s1.push(x);
-
-        // Move everything back to s1
-        while (!s2.empty()) {
-            s1.push(s2.top());
-            s2.pop();
-        }
     }
 
     int pop() {
-        if (s1.empty()) return -1;
-        int x = s1.top();
-        s1.pop();
-        return x;
+        if (s2.empty()) {
+            while (!s1.empty()) {
+                s2.push(s1.top());
+                s1.pop();
+            }
+        }
+
+        if (!s2.empty()) {
+            int topVal = s2.top();
+            s2.pop();
+            return topVal;
+        }
+
+        return -1; // Queue is empty
     }
 
     int peek() {
-        if (s1.empty()) return -1;
-        return s1.top();
+        if (s2.empty()) {
+            while (!s1.empty()) {
+                s2.push(s1.top());
+                s1.pop();
+            }
+        }
+
+        if (!s2.empty()) {
+            return s2.top();
+        }
+
+        return -1; // Queue is empty
     }
 
     bool empty() {
-        return s1.empty();
+        return s1.empty() && s2.empty();
     }
 };
