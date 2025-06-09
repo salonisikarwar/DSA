@@ -5,9 +5,9 @@ public:
         int l = 0, r = n - 1;
         int lmax = 0, rmax = 0;
         int total = 0;
-        
-        while (l < r) {
-            if (height[l] < height[r]) {
+
+        while (l <= r) {
+            if (height[l] <= height[r]) {
                 if (height[l] >= lmax) {
                     lmax = height[l];
                 } else {
@@ -23,7 +23,7 @@ public:
                 r--;
             }
         }
-        
+
         return total;
     }
 };
