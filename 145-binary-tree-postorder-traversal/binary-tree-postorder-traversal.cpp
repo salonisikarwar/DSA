@@ -12,21 +12,29 @@
 class Solution {
 public:
     vector<int> postorderTraversal(TreeNode* root) {
-        vector<int> result;
-        if (root == nullptr) return result; // Return empty vector for null root
-        
-        // Use a helper function or direct recursion
-        postorderHelper(root, result);
-        return result;
-    }
-    
-private:
-    void postorderHelper(TreeNode* node, vector<int>& result) {
-        if (node == nullptr) return;
-                 postorderHelper(node->left, result);
-        postorderHelper(node->right, result); // Traverse right subtree
+        vector<int> postorder;
+        if (root == NULL) return postorder;
 
-        result.push_back(node->val);  // Traverse left subtree
+        stack<TreeNode*> st1, st2;
+        st1.push(root);
 
+        while (!st1.empty()) {
+            TreeNode* node = st1.top();
+            st1.pop();
+            st2.push(node);
+
+            // Push left and right children
+            if (node->left != NULL)
+                st1.push(node->left);
+            if (node->right != NULL)
+                st1.push(node->right);
+        }
+
+        while (!st2.empty()) {
+            postorder.push_back(st2.top()->val);
+            st2.pop();
+        }
+
+        return postorder;
     }
 };
