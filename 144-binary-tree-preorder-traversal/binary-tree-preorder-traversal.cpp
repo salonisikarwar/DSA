@@ -12,20 +12,24 @@
 class Solution {
 public:
     vector<int> preorderTraversal(TreeNode* root) {
-        vector<int> result;
-        if (root == nullptr) return result; // Return empty vector for null root
-        
-        // Use a helper function or direct recursion
-        preorderHelper(root, result);
-        return result;
-    }
-    
-private:
-    void preorderHelper(TreeNode* node, vector<int>& result) {
-        if (node == nullptr) return;
-        
-        result.push_back(node->val);         // Visit root
-        preorderHelper(node->left, result);  // Traverse left subtree
-        preorderHelper(node->right, result); // Traverse right subtree
+        vector<int> preorder;
+        if (root == NULL)
+            return preorder;
+
+        stack<TreeNode*> st;
+        st.push(root);
+
+        while (!st.empty()) {
+            TreeNode* node = st.top();
+            st.pop();
+            preorder.push_back(node->val);
+
+            if (node->right != NULL)
+                st.push(node->right);
+            if (node->left != NULL)
+                st.push(node->left);
+        }
+
+        return preorder;
     }
 };
