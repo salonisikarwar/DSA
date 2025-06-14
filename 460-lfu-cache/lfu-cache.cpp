@@ -1,9 +1,15 @@
+#include <unordered_map>
+#include <list>
+using namespace std;
+
 class LFUCache {
-    int cap, minFreq;
-    unordered_map<int, int> keyVal;                           // key -> value
-    unordered_map<int, int> keyFreq;                          // key -> frequency
-    unordered_map<int, list<int>> freqList;                   // freq -> list of keys
-    unordered_map<int, list<int>::iterator> keyIter;          // key -> position in list
+private:
+    int cap;                  // Cache capacity
+    int minFreq;              // Minimum frequency of any key
+    unordered_map<int, int> valueMap;                // key -> value
+    unordered_map<int, int> freqMap;                 // key -> freq
+    unordered_map<int, list<int>> freqListMap;       // freq -> list of keys
+    unordered_map<int, list<int>::iterator> keyIter; // key -> iterator in list
 
 public:
     LFUCache(int capacity) {
@@ -12,53 +18,48 @@ public:
     }
 
     int get(int key) {
-        if (keyVal.find(key) == keyVal.end()) return -1;
+        if (valueMap.find(key) == valueMap.end()) return -1;
 
-        updateFreq(key);  // increase frequency
-        return keyVal[key];
+        int freq = freqMap[key];
+        freqListMap[freq].erase(keyIter[key]);     // Remove from current freq list
+
+        freqMap[key] = freq + 1;
+        freqListMap[freq + 1].push_front(key);     // Insert in new freq list
+        keyIter[key] = freqListMap[freq + 1].begin();
+
+        if (freqListMap[freq].empty()) {
+            freqListMap.erase(freq);
+            if (minFreq == freq) minFreq++;        // Update minFreq
+        }
+
+        return valueMap[key];
     }
 
     void put(int key, int value) {
         if (cap == 0) return;
 
-        // If key already exists, update value and frequency
-        if (keyVal.find(key) != keyVal.end()) {
-            keyVal[key] = value;
-            updateFreq(key);
+        // Update existing key
+        if (valueMap.find(key) != valueMap.end()) {
+            valueMap[key] = value;
+            get(key);  // Increase frequency
             return;
         }
 
-        // Evict LFU if needed
-        if (keyVal.size() == cap) {
-            int evictKey = freqList[minFreq].back(); // LRU in minFreq
-            freqList[minFreq].pop_back();
-            keyVal.erase(evictKey);
-            keyFreq.erase(evictKey);
-            keyIter.erase(evictKey);
+        // Eviction if needed
+        if (valueMap.size() >= cap) {
+            int keyToRemove = freqListMap[minFreq].back();  // Least recently used in minFreq
+            freqListMap[minFreq].pop_back();
+
+            valueMap.erase(keyToRemove);
+            freqMap.erase(keyToRemove);
+            keyIter.erase(keyToRemove);
         }
 
         // Insert new key
-        keyVal[key] = value;
-        keyFreq[key] = 1;
-        freqList[1].push_front(key);
-        keyIter[key] = freqList[1].begin();
-        minFreq = 1;  // Reset minFreq for new key
-    }
-
-private:
-    void updateFreq(int key) {
-        int freq = keyFreq[key];
-        freqList[freq].erase(keyIter[key]);
-
-        // Clean up if list becomes empty
-        if (freqList[freq].empty()) {
-            freqList.erase(freq);
-            if (minFreq == freq) minFreq++;
-        }
-
-        // Move to freq + 1
-        keyFreq[key]++;
-        freqList[freq + 1].push_front(key);
-        keyIter[key] = freqList[freq + 1].begin();
+        valueMap[key] = value;
+        freqMap[key] = 1;
+        freqListMap[1].push_front(key);
+        keyIter[key] = freqListMap[1].begin();
+        minFreq = 1;
     }
 };
