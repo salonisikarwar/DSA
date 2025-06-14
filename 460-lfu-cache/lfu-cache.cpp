@@ -1,65 +1,62 @@
-#include <unordered_map>
-#include <list>
-using namespace std;
-
 class LFUCache {
-private:
-    int cap;                  // Cache capacity
-    int minFreq;              // Minimum frequency of any key
-    unordered_map<int, int> valueMap;                // key -> value
-    unordered_map<int, int> freqMap;                 // key -> freq
-    unordered_map<int, list<int>> freqListMap;       // freq -> list of keys
-    unordered_map<int, list<int>::iterator> keyIter; // key -> iterator in list
+    // key: frequency, value: list of original key-value pairs that have the
+    // same frequency.
+    unordered_map<int, list<pair<int, int>>> frequencies;
+    // key: original key, value: pair of frequency and the iterator
+    // corresponding key in the frequencies map's list.
+    unordered_map<int, pair<int, list<pair<int, int>>::iterator>> cache;
+    int capacity;
+    int minf;
 
-public:
-    LFUCache(int capacity) {
-        cap = capacity;
-        minFreq = 0;
+    void insert(int key, int frequency, int value) {
+        frequencies[frequency].push_back({key, value});
+        cache[key] = {frequency, --frequencies[frequency].end()};
     }
 
+public:
+    LFUCache(int capacity) : capacity(capacity), minf(0) {}
+
     int get(int key) {
-        if (valueMap.find(key) == valueMap.end()) return -1;
+        const auto it = cache.find(key);
+        if (it == cache.end()) {
+            return -1;
+        }
+        const int f = it->second.first;
+        const auto iter = it->second.second;
+        const pair<int, int> kv = *iter;
+        frequencies[f].erase(iter);
+        if (frequencies[f].empty()) {
+            frequencies.erase(f);
 
-        int freq = freqMap[key];
-        freqListMap[freq].erase(keyIter[key]);     // Remove from current freq list
-
-        freqMap[key] = freq + 1;
-        freqListMap[freq + 1].push_front(key);     // Insert in new freq list
-        keyIter[key] = freqListMap[freq + 1].begin();
-
-        if (freqListMap[freq].empty()) {
-            freqListMap.erase(freq);
-            if (minFreq == freq) minFreq++;        // Update minFreq
+            if (minf == f) {
+                ++minf;
+            }
         }
 
-        return valueMap[key];
+        insert(key, f + 1, kv.second);
+        return kv.second;
     }
 
     void put(int key, int value) {
-        if (cap == 0) return;
-
-        // Update existing key
-        if (valueMap.find(key) != valueMap.end()) {
-            valueMap[key] = value;
-            get(key);  // Increase frequency
+        if (capacity <= 0) {
             return;
         }
+        const auto it = cache.find(key);
+        if (it != cache.end()) {
+            it->second.second->second = value;
+            get(key);
+            return;
+        }
+        if (capacity == cache.size()) {
+            cache.erase(frequencies[minf].front().first);
+            frequencies[minf].pop_front();
 
-        // Eviction if needed
-        if (valueMap.size() >= cap) {
-            int keyToRemove = freqListMap[minFreq].back();  // Least recently used in minFreq
-            freqListMap[minFreq].pop_back();
-
-            valueMap.erase(keyToRemove);
-            freqMap.erase(keyToRemove);
-            keyIter.erase(keyToRemove);
+            if (frequencies[minf].empty()) {
+                frequencies.erase(minf);
+            }
         }
 
-        // Insert new key
-        valueMap[key] = value;
-        freqMap[key] = 1;
-        freqListMap[1].push_front(key);
-        keyIter[key] = freqListMap[1].begin();
-        minFreq = 1;
+        minf = 1;
+        insert(key, 1, value);
     }
 };
