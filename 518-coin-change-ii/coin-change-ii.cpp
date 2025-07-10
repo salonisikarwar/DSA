@@ -1,21 +1,20 @@
 class Solution {
-public:
-int f (int ind , int T , vector<int> &a , vector<vector<long>>& dp )
-{
-    if(ind ==0)
-    {
-        return(T % a[0] == 0);
-    }
-    if(dp[ind][T] != -1) return dp[ind][T];
-    long long notTake = f(ind-1 , T, a , dp );
-    long take = 0;
-     if (T >= a[ind])
-            take = f(ind, T - a[ind], a, dp);
-    return  dp[ind][T] = take +notTake;
-}
-    int change(int amount, vector<int>& coins) {
-        int n = coins.size();
-        vector<vector<long>>dp(n ,vector<long>(amount+1 , -1));
-       return f(n-1 ,amount ,  coins , dp  ) ;
+public: 
+    int change(int target, vector<int>& nums) {
+        int n=nums.size();
+        vector<int>prev(target+1,0);
+        vector<int>cur(target+1,0);
+        for(int t=0;t<=target;t++){
+            if(t%nums[0]==0) prev[t]=1;
+        }
+        for(int i=1;i<n;i++){
+            for(int t=0;t<=target;t++){
+                long nottake=prev[t];
+                long take=(nums[i]<=t)?cur[t-nums[i]]:0;
+                cur[t] = nottake + take;
+            }
+            prev=cur;
+        }
+        return prev[target];
     }
 };
