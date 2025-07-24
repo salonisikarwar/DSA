@@ -1,0 +1,13 @@
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int maxInd = 0;
+        int n = nums.size();
+        for (int i = 0; i < n; i++) {
+            if (i > maxInd) return false; // Can't reach current index
+            maxInd = max(maxInd, i + nums[i]);
+            if (maxInd >= n - 1) return true; // Early exit: end is reachable
+        }
+        return true;
+    }
+};
