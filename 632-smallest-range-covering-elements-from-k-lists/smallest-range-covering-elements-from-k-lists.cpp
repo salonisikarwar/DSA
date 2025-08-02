@@ -1,63 +1,52 @@
-class node {
-public:
-    int data;
-    int row;
-    int col;
-
-    node(int d, int r, int c) {
-        data = d;
-        row = r;
-        col = c;
-    }
-};
-
-class compare {
-public:
-    bool operator()(node* a, node* b) {
-        return a->data > b->data;
-    }
-};
-
 class Solution {
 public:
+    struct Node {
+        int val, row, col;
+        Node(int v, int r, int c) : val(v), row(r), col(c) {}
+    };
+
+    struct compare {
+        bool operator()(const Node& a, const Node& b) {
+            return a.val > b.val; // min-heap
+        }
+    };
+
     vector<int> smallestRange(vector<vector<int>>& nums) {
-        int mini = INT_MAX;
-        int maxi = INT_MIN;
+        int k = nums.size();
+        int rangeStart = 0, rangeEnd = INT_MAX;
+        int currentMax = INT_MIN;
 
-        priority_queue<node*, vector<node*>, compare> minHeap;
+        // Use value-based heap (no pointers or dynamic memory)
+        priority_queue<Node, vector<Node>, compare> minHeap;
 
-        // Initialize heap
-        for (int i = 0; i < nums.size(); i++) {
+        // Initialize heap with first elements of all lists
+        for (int i = 0; i < k; ++i) {
             int val = nums[i][0];
-            mini = min(mini, val);
-            maxi = max(maxi, val);
-            minHeap.push(new node(val, i, 0));
+            minHeap.emplace(val, i, 0);
+            currentMax = max(currentMax, val);
         }
 
-        int start = mini, end = maxi;
-
-        while (!minHeap.empty()) {
-            node* temp = minHeap.top();
-            minHeap.pop();
-
-            mini = temp->data;
+        while (true) {
+            Node current = minHeap.top(); minHeap.pop();
+            int currentMin = current.val;
 
             // Update range if smaller
-            if (maxi - mini < end - start) {
-                start = mini;
-                end = maxi;
+            if (currentMax - currentMin < rangeEnd - rangeStart) {
+                rangeStart = currentMin;
+                rangeEnd = currentMax;
             }
 
-            // If next element in the same row exists
-            if (temp->col + 1 < nums[temp->row].size()) {
-                int nextVal = nums[temp->row][temp->col + 1];
-                maxi = max(maxi, nextVal);
-                minHeap.push(new node(nextVal, temp->row, temp->col + 1));
+            // If there's a next element in the same list, push it
+            if (current.col + 1 < nums[current.row].size()) {
+                int nextVal = nums[current.row][current.col + 1];
+                currentMax = max(currentMax, nextVal);
+                minHeap.emplace(nextVal, current.row, current.col + 1);
             } else {
-                break; // We can't cover all lists anymore
+                // One list is exhausted — we can't include all lists anymore
+                break;
             }
         }
 
-        return {start, end};
+        return {rangeStart, rangeEnd};
     }
 };
