@@ -3,18 +3,18 @@ public:
     string longestCommonPrefix(vector<string>& strs) {
         if (strs.empty()) return "";
 
-        // Iterate over characters of the first string
-        for (int i = 0; i < strs[0].size(); ++i) {
-            char c = strs[0][i];
+        sort(strs.begin(), strs.end());
 
-            // Check current character against all other strings
-            for (int j = 1; j < strs.size(); ++j) {
-                if (i >= strs[j].size() || strs[j][i] != c) {
-                    return strs[0].substr(0, i);  // mismatch found
-                }
-            }
+        string first = strs[0];
+        string last = strs[strs.size() - 1];
+        string result = "";
+
+        for (int i = 0; i < first.size(); i++) {
+            if (first[i] != last[i])
+                break;
+            result += first[i];
         }
 
-        return strs[0];  // all characters matched
+        return result;
     }
 };
