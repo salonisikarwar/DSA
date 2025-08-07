@@ -1,17 +1,16 @@
 class Solution {
 public:
+ int helper(int ind , vector<int>&dp)
+ {
+    if(ind==0)return 1 ;
+    if(ind==1)return 1;
+    if(dp[ind] != -1)return dp[ind];
+      dp[ind]  = helper(ind-1 ,dp) +helper(ind-2 , dp);
+        return dp[ind] ;
+ }
     int climbStairs(int n) {
-        if (n <= 1) return 1;
-
-    int prev2 = 1;  // f(0)
-    int prev  = 1;  // f(1)
-
-    for (int i = 2; i <= n; i++) {
-        int curr = prev + prev2; // f(i) = f(i-1) + f(i-2)
-        prev2 = prev;
-        prev = curr;
-    }
-
-    return prev;
-    }
+    vector<int>dp(n+1, -1);
+   return  helper(n , dp);}
+    
+    
 };
