@@ -1,23 +1,19 @@
 class Solution {
 public:
     int missingNumber(vector<int>& nums) {
+        int XOR1 = 0;
         int n = nums.size();
+        for(int i= 0;i<=n;i++)
+        {
+            XOR1 = XOR1^i;
+
+        }
+       int  XOR2 = 0;
+        for(int i=0; i<n ;i++)
+        {
+            XOR2 = XOR2^nums[i];
+        }
+        return XOR1^XOR2;
         
-        // Step 1: create hash array of size n+1
-        vector<int> hash(n+1, 0);
-
-        // Step 2: mark the numbers present
-        for (int i = 0; i < n; i++) {
-            hash[nums[i]] = 1;
-        }
-
-        // Step 3: find the missing number
-        for (int i = 0; i <= n; i++) {
-            if (hash[i] == 0) {
-                return i;
-            }
-        }
-
-        return -1; // should never reach here
     }
 };
