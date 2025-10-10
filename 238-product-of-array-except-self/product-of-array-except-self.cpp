@@ -2,19 +2,21 @@ class Solution {
 public:
     vector<int> productExceptSelf(vector<int>& nums) {
         int n = nums.size();
-        vector<int> left(n, 1), right(n, 1), answer(n);
+        vector<int> answer(n, 1);
 
-        // prefix product
-        for (int i = 1; i < n; i++)
-            left[i] = left[i - 1] * nums[i - 1];
+        // Step 1: Build prefix product into 'answer'
+        int prefix = 1;
+        for (int i = 0; i < n; i++) {
+            answer[i] = prefix;
+            prefix *= nums[i];
+        }
 
-        // suffix product
-        for (int i = n - 2; i >= 0; i--)
-            right[i] = right[i + 1] * nums[i + 1];
-
-        // multiply prefix and suffix
-        for (int i = 0; i < n; i++)
-            answer[i] = left[i] * right[i];
+        // Step 2: Multiply by suffix product on the fly
+        int suffix = 1;
+        for (int i = n - 1; i >= 0; i--) {
+            answer[i] *= suffix;
+            suffix *= nums[i];
+        }
 
         return answer;
     }
