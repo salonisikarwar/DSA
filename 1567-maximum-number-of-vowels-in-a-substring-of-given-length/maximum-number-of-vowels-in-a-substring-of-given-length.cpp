@@ -1,28 +1,26 @@
 class Solution {
 public:
-    bool isVowel(char c) {
-        c = tolower(c);
-        return c=='a' || c=='e' || c=='i' || c=='o' || c=='u';
-    }
-
     int maxVowels(string s, int k) {
-        int n = s.size();
-        int cnt = 0; // count of vowels in current window
-        int maxCnt = 0;
-        
-        // Count vowels in the first window
+        auto isVowel = [](char c) {
+            c = tolower(c);
+            return c=='a' || c=='e' || c=='i' || c=='o' || c=='u';
+        };
+
+        int cnt = 0;      // current vowel count
+        int maxCnt = 0;   // maximum vowels
+
+        // First window
         for(int i = 0; i < k; i++)
-            if(isVowel(s[i])) cnt++;
-        
+            cnt += isVowel(s[i]);
         maxCnt = cnt;
-        
+
         // Slide the window
-        for(int i = k; i < n; i++) {
-            if(isVowel(s[i])) cnt++;        
-            if(isVowel(s[i - k])) cnt--;      // remove character leaving the window
-            maxCnt = max(maxCnt, cnt);        // update max
+        for(int i = k; i < s.size(); i++) {
+            cnt += isVowel(s[i]) - isVowel(s[i - k]); // add new, remove old
+            if(cnt == k) return k;                    // early exit: max possible
+            maxCnt = max(maxCnt, cnt);
         }
-        
+
         return maxCnt;
     }
 };
