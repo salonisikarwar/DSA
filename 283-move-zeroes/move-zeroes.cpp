@@ -8,7 +8,7 @@ public:
         {
             if(nums[i]==0)
              j= i;
-             break;
+            break;
         }
          for( i = 0;i<n;i++)
 
