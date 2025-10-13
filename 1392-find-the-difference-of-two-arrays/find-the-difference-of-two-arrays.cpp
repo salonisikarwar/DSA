@@ -1,22 +1,26 @@
 class Solution {
 public:
-    vector<vector<int>> findDifference(vector<int>& nums1, vector<int>& nums2) {
-        unordered_set<int> set1(nums1.begin(), nums1.end());
-        unordered_set<int> set2(nums2.begin(), nums2.end());
-        
-        vector<int> distinct_nums1, distinct_nums2;
-        for (int num : set1) {
-            if (set2.count(num) == 0) {
-                distinct_nums1.push_back(num);
-            }
+    vector<vector<int>> findDifference(vector<int>& nums1, vector<int>& nums2)
+    {
+        unordered_map<int,int> freq1,freq2;
+        for(auto x : nums1)
+        {
+            freq1[x]++;
         }
-
-        for (int num : set2) {
-            if (set1.count(num) == 0) {
-                distinct_nums2.push_back(num);
-            }
+        for(auto x : nums2)
+        {
+            freq2[x]++;
         }
-
-        return {distinct_nums1, distinct_nums2};
+        vector<int> v1;
+        vector<int> v2;
+        for(auto x : nums1)
+        {
+            if(freq2.count(x)==0 && find(v1.begin(),v1.end(),x)==v1.end()) v1.push_back(x);
+        }
+        for(auto x : nums2)
+        {
+            if(freq1.count(x)==0 && find(v2.begin(),v2.end(),x)==v2.end()) v2.push_back(x);
+        }
+        return {v1,v2};
     }
 };
