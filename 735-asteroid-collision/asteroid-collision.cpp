@@ -1,27 +1,33 @@
 class Solution {
 public:
-    vector<int> asteroidCollision(vector<int>& asteroids) {
-        list<int> st;
-
-        for (int i = 0; i < asteroids.size(); i++) {
-            int curr = asteroids[i];
-
-            if (curr > 0) {
-                st.push_back(curr);
-            } else {
-                while (!st.empty() && st.back() > 0 && st.back() < abs(curr)) {
-                    st.pop_back(); // destroy smaller positive asteroid
+    vector<int> asteroidCollision(vector<int>& ast) {
+        int n = ast.size();
+        stack<int> s;
+        for(int i = 0; i < n; i++) {
+            if(ast[i] > 0 || s.empty()) {
+                s.push(ast[i]);
+            }
+            else {
+                while(!s.empty() and s.top() > 0 and s.top() < abs(ast[i])) {
+                    s.pop();
                 }
-
-                if (!st.empty() && st.back() == abs(curr)) {
-                    st.pop_back(); // both explode
-                } else if (st.empty() || st.back() < 0) {
-                    st.push_back(curr); // survives or stack only had left-moving
+                if(!s.empty() and s.top() == abs(ast[i])) {
+                    s.pop();
                 }
-                // If the top of the stack is a larger asteroid, the current one gets destroyed (do nothing)
+                else {
+                    if(s.empty() || s.top() < 0) {
+                        s.push(ast[i]);
+                    }
+                }
             }
         }
-
-        return vector<int>(st.begin(), st.end()); // convert list to vector
+		// finally we are returning the elements which remains in the stack.
+		// we have to return them in reverse order.
+        vector<int> res(s.size());
+        for(int i = (int)s.size() - 1; i >= 0; i--) {
+            res[i] = s.top();
+            s.pop();
+        }
+        return res;
     }
 };
