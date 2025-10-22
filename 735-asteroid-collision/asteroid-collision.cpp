@@ -1,33 +1,41 @@
 class Solution {
 public:
-    vector<int> asteroidCollision(vector<int>& ast) {
-        int n = ast.size();
-        stack<int> s;
-        for(int i = 0; i < n; i++) {
-            if(ast[i] > 0 || s.empty()) {
-                s.push(ast[i]);
-            }
+    vector<int> asteroidCollision(vector<int>& asteroids) {
+        stack<int> st; // to simulate collisions
+
+        for (int i = 0; i < asteroids.size(); i++) {
+            int curr = asteroids[i];
+
+            // Case 1: Moving right → safe for now, just push
+            if (curr > 0) {
+                st.push(curr);
+            } 
+            // Case 2: Moving left → possible collisions
             else {
-                while(!s.empty() and s.top() > 0 and s.top() < abs(ast[i])) {
-                    s.pop();
+                while (!st.empty() && st.top() > 0 && st.top() < abs(curr)) {
+                    // Current asteroid destroys smaller right-moving asteroid
+                    st.pop();
                 }
-                if(!s.empty() and s.top() == abs(ast[i])) {
-                    s.pop();
+
+                // If both are equal → both destroy each other
+                if (!st.empty() && st.top() == abs(curr)) {
+                    st.pop(); // both destroyed
                 }
-                else {
-                    if(s.empty() || s.top() < 0) {
-                        s.push(ast[i]);
-                    }
+                // If stack empty or top is also moving left → push current
+                else if (st.empty() || st.top() < 0) {
+                    st.push(curr);
                 }
+                // If top > abs(curr), current asteroid gets destroyed → do nothing
             }
         }
-		// finally we are returning the elements which remains in the stack.
-		// we have to return them in reverse order.
-        vector<int> res(s.size());
-        for(int i = (int)s.size() - 1; i >= 0; i--) {
-            res[i] = s.top();
-            s.pop();
+
+        // Convert stack to vector (in correct order)
+        vector<int> result(st.size());
+        for (int i = st.size() - 1; i >= 0; i--) {
+            result[i] = st.top();
+            st.pop();
         }
-        return res;
+
+        return result;
     }
 };
