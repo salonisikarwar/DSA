@@ -1,47 +1,33 @@
 class Solution {
 public:
     int myAtoi(string s) {
+        int i = 0, ans = 0;
+        int n = s.size();
 
-        if (s.length() == 0) return 0;
+        // Skip spaces
+        while (i < n && s[i] == ' ') i++;
+        if (i == n) return 0;
 
-        int i = 0;
-
-        
-        while (i < s.size() && s[i] == ' ') {
+        // Sign
+        int sign = 1;
+        if (s[i] == '-' || s[i] == '+') {
+            sign = (s[i] == '-') ? -1 : 1;
             i++;
         }
 
-        // now substring from first non-space character
-        s = s.substr(i); // Reset s to trimmed string
+        // Digits
+        while (i < n && isdigit(s[i])) {
+            int digit = s[i] - '0';
 
-        int sign = +1;
-        long ans = 0;
+            // Overflow check BEFORE update
+            if (ans > (INT_MAX - digit) / 10) {
+                return sign == 1 ? INT_MAX : INT_MIN;
+            }
 
-        
-        if (s[0] == '-') sign = -1;
-
-        // Declare MAX and MIN
-        int MAX = INT_MAX, MIN = INT_MIN;
-
-        //  Move i to start of digits, only if + or - exists
-        i = (s[0] == '+' || s[0] == '-') ? 1 : 0;
-
-        // 
-        while (i < s.length()) {
-
-            //  check s[i] not s[0]
-            if (!isdigit(s[i])) break;
-
-            // convert char to digit and build answer
-            ans = ans * 10 + (s[i] - '0');
-
-            // Check for overflow
-            if (sign == -1 && -1 * ans < MIN) return MIN;
-            if (sign == 1 && ans > MAX) return MAX;
-
+            ans = ans * 10 + digit;
             i++;
         }
 
-        return (int)(sign * ans);
+        return sign * ans;
     }
 };
